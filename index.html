@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<script src="./Para.js"></script>
+	<script>
+
+		console.time()
+
+		var para = new Para( 2e6 );
+
+		para
+			.mul( 3.1423213 )
+			.commit();
+
+		// para.sub( 2 )
+		// 	.commit();
+
+		console.timeEnd()
+
+		var arr = [];
+		for (var i = 0; i < 2e6; i++) arr[ i ] = 0;
+
+		console.time( 'cpu' )
+		for (var i = 0; i < 2e6; i++) {
+			arr[ i ] *= 3.1423213;
+		}
+		console.timeEnd( 'cpu' )
+
+	</script>
+</body>
+</html>

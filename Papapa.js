@@ -1,31 +1,17 @@
-var Para = Para || function( numOrArray ) {
+var Para = Para || function( param ) {
 
 	"use strict";
 
 	this.array = null;
 
-	if ( numOrArray instanceof Array ) {
-
-		this.array = new Float32Array( numOrArray.length * 4 );
-
-		this.array.set( numOrArray );
-
-		console.log( this.array );
+	this._fragmentShaderCode = '';
 
 
-	} else if ( typeof( numOrArray ) === 'number' ) {
-
-		this.array = new Float32Array( numOrArray * 4 );
-
-	} else {
-
-		// error
-
-	}
-
+	
 	var gl = getGLContext( document.createElement( 'canvas' ) );
 
 	var size = Math.sqrt( this.array.length ) / 4;
+
 	
 	/*
 	  a * * * * * d
@@ -53,9 +39,11 @@ var Para = Para || function( numOrArray ) {
 	var dataTexture = createDataTexture( this.array );
 	var resultTexture = createDataTexture( new Float32Array( this.array.length ) );
 
-	// gl.viewport( 0, 0, size, size );
-	// gl.bindFramebuffer( gl.FRAMEBUFFER, gl.createFramebuffer() );
-	// gl.framebufferTexture2D( gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, resultTexture, 0 );
+	var vertexShader = gl.createShader( gl.VERTEX_SHADER );
+
+		gl.shaderSource( vertexShader, vertexShaderCode );
+		gl.compileShader( vertexShader );
+
 
 	var vertexShaderCode = 
 		'attribute vec2 a_position;\n' +
@@ -71,15 +59,14 @@ var Para = Para || function( numOrArray ) {
 		'uniform sampler2D u_texture;\n' +
 		'varying vec2 v_uv;\n' +
 		'void main( void ) {\n' +
-		'	vec4 value = texture2D( u_texture, v_uv );\n';
+		'	vec4 value = texture2D( u_texture, v_uv );\n'+
+		'	value += 10.0;\n'
 
 	var fragmentShaderCodeTail =
 		'	gl_FragColor = value;\n' +
 		'}\n';
 
-
 	this._fragmentShaderCode = fragmentShaderCodeHead;
-
 
 	this.refreshData = function() {
 
@@ -90,19 +77,13 @@ var Para = Para || function( numOrArray ) {
 		gl.shaderSource( fragmentShader, this._fragmentShaderCode );
 		gl.compileShader( fragmentShader );
 
-		var vertexShader = gl.createShader( gl.VERTEX_SHADER );
-
-		gl.shaderSource( vertexShader, vertexShaderCode );
-		gl.compileShader(vertexShader);
-
-		console.log( this._fragmentShaderCode )
 
 		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-			var LOC = this._fragmentShaderCode.split('\n');
+			var LOC = code.split('\n');
 			var dbgMsg = "ERROR: Could not build shader (fatal).\n\n------------------ KERNEL CODE DUMP ------------------\n"
 
-			// for (var nl = 0; nl < LOC.length; nl++)
-			// 	dbgMsg += (stdlib.split('\n').length + nl) + "> " + LOC[nl] + "\n";
+			for (var nl = 0; nl < LOC.length; nl++)
+				dbgMsg += (stdlib.split('\n').length + nl) + "> " + LOC[nl] + "\n";
 
 			dbgMsg += "\n--------------------- ERROR  LOG ---------------------\n" + gl.getShaderInfoLog(fragmentShader)
 
@@ -151,8 +132,7 @@ var Para = Para || function( numOrArray ) {
 		gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0 );
 		gl.readPixels( 0, 0, size, size, gl.RGBA, gl.FLOAT, this.array );
 
-		// this.array = this.array.subarray(0, 4);
-		return this;
+		this.array = this.array.subarray(0, 4);
 
 	}
 
@@ -232,8 +212,6 @@ var Para = Para || function( numOrArray ) {
 		// initShader( vertexShaderCode, this._fragmentShaderCode );
 		this.refreshData();
 
-		this._fragmentShaderCode = fragmentShaderCodeHead;
-
 		return this.array;
 
 	}
@@ -257,8 +235,8 @@ Para.prototype = {
 
 	_formatNumber: function( n ) {
 
-		if ( n % 1 === 0 ) return n + '.';
-		return n + '';
+		if ( n % 1 === 0 ) return n + '';
+		return n + '.';
 
 	},
 
@@ -268,7 +246,7 @@ Para.prototype = {
 
 		this._fragmentShaderCode += code;
 
-		return this;
+		return this
 
 	},
 
