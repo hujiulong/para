@@ -8,24 +8,28 @@
 	<script src="./Para.js"></script>
 	<script>
 
+		var para = new Para( 5e6 );
+
 		console.time()
 
-		var para = new Para( 2e6 );
-
 		para
-			.mul( 3.1423213 )
-			.commit();
+			.add( 3.1423213 )
+			.commit()
+			// .add( 2.2 )
+			// .commit();
 
 		// para.sub( 2 )
 		// 	.commit();
 
 		console.timeEnd()
 
+		console.log( para )
+
 		var arr = [];
-		for (var i = 0; i < 2e6; i++) arr[ i ] = 0;
+		for (var i = 0; i < 5e6; i++) arr[ i ] = 0;
 
 		console.time( 'cpu' )
-		for (var i = 0; i < 2e6; i++) {
+		for (var i = 0; i < 5e5; i++) {
 			arr[ i ] *= 3.1423213;
 		}
 		console.timeEnd( 'cpu' )
